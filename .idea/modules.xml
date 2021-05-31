@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/ssc-brewery-test-http-basic/scc-brewery.iml" filepath="$PROJECT_DIR$/ssc-brewery-test-http-basic/scc-brewery.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ssc-brewery-test-http-basic.iml" filepath="$PROJECT_DIR$/.idea/ssc-brewery-test-http-basic.iml" />
+    </modules>
+  </component>
+</project>
