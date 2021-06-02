@@ -48,7 +48,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .withUser("scott")
                 .password("{noop}tiger")
                 .roles("CUSTOMER");
-        ;
     }
 
     //    @Override
