@@ -41,7 +41,7 @@ public class RestHeaderAuthFilter extends AbstractAuthenticationProcessingFilter
     }
 
     private String getPassword(HttpServletRequest httpServletRequest) {
-        httpServletRequest.getHeader("Api-Secret");
+      return httpServletRequest.getHeader("Api-Secret");
     }
 
     private String getUsername(HttpServletRequest httpServletRequest) {
