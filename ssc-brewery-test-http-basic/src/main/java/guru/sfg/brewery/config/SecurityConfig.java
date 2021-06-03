@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,23 +41,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     PasswordEncoder passwordEncoder () {
-        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    //Fluent API
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
                 .withUser("spring")
-                .password("{SSHA}htr/NqFI1lKxuCUWx9FkY+Vbw4Zv5gC+M/dxDw==")
+                .password("{bcrypt}$2a$10$YFuwOOBYN5PUNJdzY/DR8.AJgpNGxH0HBatVpvPoFD6N60ayv5b6y")
                 .roles("ADMIN")
                 .and()
                 .withUser("user")
-                .password("$2a$10$lzP9inHl82HbM7a1MakdZu/jq0YagoU8nGUoWjH.6ADYOti0cLShW")
+                .password("{sha256}3d6377dcb6ce3760ef5a948876636f107da546af51e5e621b4e79bbac30940323e641d69d7ac6822")
                 .roles("USER")
                 .and()
                 .withUser("scott")
-                .password("{SSHA}htr/NqFI1lKxuCUWx9FkY+Vbw4Zv5gC+M/dxDw==")
+                .password("{ldap}{SSHA}ZEFhTsf+kP1oNpH6OndMDkJdre++BRgvLJZS0g==")
                 .roles("CUSTOMER");
     }
 }
