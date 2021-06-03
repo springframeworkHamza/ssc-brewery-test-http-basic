@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     PasswordEncoder passwordEncoder () {
-        return new StandardPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
 
     //Fluent API
@@ -51,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .roles("ADMIN")
                 .and()
                 .withUser("user")
-                .password("3f71dffa62ca7904b4ac5caa058cc3e2ac03866868dc5d3afc7744af1b2c1ba3553774faf5cb6eed")
+                .password("$2a$10$lzP9inHl82HbM7a1MakdZu/jq0YagoU8nGUoWjH.6ADYOti0cLShW")
                 .roles("USER")
                 .and()
                 .withUser("scott")
