@@ -1,6 +1,7 @@
 package guru.sfg.brewery.security;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
@@ -23,7 +24,7 @@ import java.io.IOException;
 @Slf4j
 public class RestHeaderAuthFilter extends AbstractAuthenticationProcessingFilter {
 
-    public  RestHeaderAuthFilter(RequestMatcher requiresAuthenticationRequestMatcher) {
+    public RestHeaderAuthFilter(RequestMatcher requiresAuthenticationRequestMatcher) {
         super(requiresAuthenticationRequestMatcher);
     }
 
@@ -34,23 +35,45 @@ public class RestHeaderAuthFilter extends AbstractAuthenticationProcessingFilter
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
+
         if (logger.isDebugEnabled()) {
             logger.debug("Request is to process authentication");
         }
 
-        Authentication authResult = attemptAuthentication(request, response);
+        try {
+            Authentication authResult = attemptAuthentication(request, response);
 
-       if (authResult != null) {
-           successfulAuthentication(request, response, chain, authResult);
-       } else {
-           chain.doFilter(request,response);
-       }
+            if (authResult != null) {
+                successfulAuthentication(request, response, chain, authResult);
+            } else {
+                chain.doFilter(request, response);
+            }
+        } catch (AuthenticationException e) {
+            log.error("Authentication Failed", e);
+            unsuccessfulAuthentication(request, response, e);
+        }
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
-        String userName = getUsername(httpServletRequest);
-        String password = getPassword(httpServletRequest);
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+                                              HttpServletResponse response, AuthenticationException failed)
+            throws IOException, ServletException {
+
+        SecurityContextHolder.clearContext();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Authentication request failed: " + failed.toString(), failed);
+            log.debug("Updated SecurityContextHolder to contain null Authentication");
+        }
+
+        response.sendError(HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase());
+    }
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+        String userName = getUsername(request);
+        String password = getPassword(request);
 
         if (userName == null){
             userName = "";
@@ -64,17 +87,16 @@ public class RestHeaderAuthFilter extends AbstractAuthenticationProcessingFilter
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userName, password);
 
-       if (!StringUtils.isEmpty(userName)) {
-           return this.getAuthenticationManager().authenticate(token);
-       } else {
-           return null;
-       }
+        if (!StringUtils.isEmpty(userName)) {
+            return this.getAuthenticationManager().authenticate(token);
+        } else {
+            return null;
+        }
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            FilterChain chain, Authentication authResult)
+                                            HttpServletResponse response, FilterChain chain, Authentication authResult)
             throws IOException, ServletException {
 
         if (logger.isDebugEnabled()) {
@@ -86,11 +108,11 @@ public class RestHeaderAuthFilter extends AbstractAuthenticationProcessingFilter
 
     }
 
-    private String getPassword(HttpServletRequest httpServletRequest) {
-      return httpServletRequest.getHeader("Api-Secret");
+    private String getPassword(HttpServletRequest request) {
+        return request.getHeader("Api-Secret");
     }
 
-    private String getUsername(HttpServletRequest httpServletRequest) {
-        return httpServletRequest.getHeader("Api-Key");
+    private String getUsername(HttpServletRequest request) {
+        return request.getHeader("Api-Key");
     }
 }
